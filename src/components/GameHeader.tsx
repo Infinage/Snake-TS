@@ -14,7 +14,7 @@ export default function GameHeader ({reloadGame, pauseGame, isPaused, score}: He
                 <Ionicons name={isPaused? "play-circle": "pause-circle"} size={35} colors={COLORS.primary} />
             </TouchableOpacity>
 
-            <Text style={styles.scoreText}>🍴 {score}</Text>
+            <Text style={styles.scoreText}>🍴{score}</Text>
         </View>
     )
 }

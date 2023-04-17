@@ -1,8 +1,7 @@
 import React from "react";
-import { Text } from "react-native";
 
-import { SafeAreaView, StyleSheet, View } from "react-native"
-import { PanGestureHandler } from "react-native-gesture-handler"
+import { SafeAreaView, StyleSheet, View, Vibration } from "react-native"
+import { PanGestureHandler, TapGestureHandler } from "react-native-gesture-handler"
 import { COLORS } from "../styles/colors";
 import { Coordinate, Direction, FoodType, GestureEventType } from "../utils/types";
 import { MOVE_INTERVAL, SCORE_INCREMENT, SNAKE_INITIAL_POS } from "../utils/INITIAL_CONFIG";
@@ -19,6 +18,7 @@ const Game = (): JSX.Element => {
     const [score, setScore] = React.useState<number>(0);
     const [isPaused, setIsPaused] = React.useState<boolean>(false);
     const [gameOver, setGameOver] = React.useState<boolean>(false);
+    const [scoreIncrement, setScoreIncrement] = React.useState<number>(SCORE_INCREMENT);
 
     React.useEffect(() => {
         if (!gameOver) {
@@ -46,9 +46,11 @@ const Game = (): JSX.Element => {
         const snakeHead = snake[0];
         const newHead = {...snakeHead};
 
-        setGameOver(checkGameOver(snakeHead));
+        const isGameOver = checkGameOver(snakeHead);
+        setGameOver(isGameOver);
 
-        if (!gameOver) {
+        if (isGameOver) Vibration.vibrate(100);
+        else if (!gameOver) {
             switch (direction) {
                 case Direction.TOP:
                     newHead.y -= 1;
@@ -67,7 +69,7 @@ const Game = (): JSX.Element => {
                 // If user has eaten something
                 setFood(generateFood())
                 setSnake(snake => [newHead, ...snake.slice(0, snake.length)]);
-                setScore(score => score + SCORE_INCREMENT);
+                setScore(score => score + scoreIncrement);
             } else {
                 // If user has not eaten something
                 setSnake(snake => [newHead, ...snake.slice(0, snake.length - 1)]);
@@ -77,18 +79,19 @@ const Game = (): JSX.Element => {
 
     const handleGesture = (event: GestureEventType) => {
         const {translationX, translationY} = event.nativeEvent;
-
-        if (Math.abs(translationX) > Math.abs(translationY)) {
-            if (translationX < 0) {
-                setDirection(Direction.LEFT)
+        if (!isPaused) {
+            if (Math.abs(translationX) > Math.abs(translationY)) {
+                if (translationX < 0) {
+                    setDirection(Direction.LEFT);
+                } else {
+                    setDirection(Direction.RIGHT);
+                }
             } else {
-                setDirection(Direction.RIGHT)
-            }
-        } else {
-            if (translationY < 0) {
-                setDirection(Direction.TOP);
-            } else {
-                setDirection(Direction.BOTTOM);
+                if (translationY < 0) {
+                    setDirection(Direction.TOP);
+                } else {
+                    setDirection(Direction.BOTTOM);
+                }
             }
         }
     }
@@ -97,10 +100,12 @@ const Game = (): JSX.Element => {
         <PanGestureHandler onGestureEvent={handleGesture}>
             <SafeAreaView style={styles.container}>
                 <GameHeader isPaused={isPaused} pauseGame={pauseGame} reloadGame={reloadGame} score={score} />
+                <TapGestureHandler numberOfTaps={2} onActivated={() => gameOver? reloadGame(): pauseGame()}>
                 <View style={styles.wall}>
-                    <Snake snake={snake} />
+                    <Snake snake={snake} gameOver={gameOver} />
                     <Food foodEmoji={food.foodEmoji} foodPos={food.foodPos}/>
                 </View>
+                </TapGestureHandler>
             </SafeAreaView>
         </PanGestureHandler>
     )

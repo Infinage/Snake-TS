@@ -1,11 +1,21 @@
+import * as React from "react";
 import { StyleSheet, View } from "react-native";
 import { Coordinate, SnakeProps } from "../utils/types";
 import { COLORS } from "../styles/colors";
-import { Fragment } from "react";
 
-const Snake = ({snake}: SnakeProps): JSX.Element => {
+const Snake = ({snake, gameOver}: SnakeProps): JSX.Element => {
+
+    const [isSnakeVisible, setSnakeVisibility] = React.useState<boolean>(true);
+
+    React.useEffect(() => {
+        if (gameOver) {
+            const intervalId = setInterval(() => setSnakeVisibility(isSnakeVisible => !isSnakeVisible), 500)
+            return () => clearInterval(intervalId);
+        } else setSnakeVisibility(true);
+    }, [gameOver])
+
     return (
-        <Fragment>
+        <React.Fragment>
             {snake.map((segment: Coordinate, index: number) => {
                 
                 const segmentPosAndColor = { 
@@ -13,9 +23,9 @@ const Snake = ({snake}: SnakeProps): JSX.Element => {
                     backgroundColor: index == 0? COLORS.dark: COLORS.primary
                 };
 
-                return (<View key={index} style={[styles.snakeSegment, segmentPosAndColor]} />)
+                return (isSnakeVisible && <View key={index} style={[styles.snakeSegment, segmentPosAndColor]} />)
             })}
-        </Fragment>
+        </React.Fragment>
     )
 }
 

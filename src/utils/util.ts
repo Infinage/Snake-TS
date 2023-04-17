@@ -16,7 +16,7 @@ export const checkEatenFood = (snakeHead: Coordinate, food: Coordinate): boolean
 
 export const generateFood = (): FoodType => {
 
-    const foodEmojis = ["🍅", "🍊", "🥭", "🍇"];
+    const foodEmojis = ["🍅", "🍊", "🥭"];
     const foodEmoji = foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
 
     return { 

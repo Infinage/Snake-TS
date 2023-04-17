@@ -16,7 +16,8 @@ export interface Coordinate {
 }
 
 export interface SnakeProps {
-    snake: Coordinate[];
+    snake: Coordinate[],
+    gameOver: boolean
 }
 
 export interface HeaderProps {
